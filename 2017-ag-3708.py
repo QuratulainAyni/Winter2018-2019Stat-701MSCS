@@ -1,30 +1,29 @@
-import pandas as pd
-import numpy as np
-from scipy import stats
-import statsmodels.api as sm
+from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
-import matplotlib
-import statsmodels.api as sm
+import pandas as dd
+import numpy as np
+import statsmodels.formula.api as smf
+from statsmodels.stats.anova import anova_lm
 
 
-Y = [1,3,4,5,2,3,4]
-X = range(1,8)
-Z=np.array([10.0, 8.0, 13.0, 9.0, 11.0, 14.0,1.0])+X
-X = sm.add_constant(X)
-model = sm.OLS(Y,X)
-results = model.fit()
-results.params
-results.tvalues
-print(results.summary())
+
+b= dd.DataFrame({"Fertilizer": [100,200,300,400,500,600,700], "Rainfall": [10, 20, 10, 30, 20, 20, 30], "Yield": [40, 50, 50, 70, 65, 65, 80]})
+result = smf.ols(formula="Yield ~ Fertilizer + Rainfall", data=b).fit()
+print(result.summary())
 
 fig = plt.figure()
-axis = fig.add_subplot(111, projection='3d')
-axis.scatter(['X'],['Y'],['Z'], c='r', marker='o')
-xx, yy = np.meshgrid(['x'],['x'])
-exog = pd.core.frame.DataFrame({'x':xx.ravel(),'y':yy.ravel()})
-out = results.predict(exog=exog)
-axis.plot_surface(xx, yy, out.values.reshape(xx.shape), rstride=1, cstride=1, alpha='0.2', color='None')
-axis.set_xlabel("x")
-axis.set_ylabel("y")
-axis.set_zlabel("z")
+ax = fig.add_subplot(111, projection='3d')
+ax.scatter(b['Fertilizer'],
+           b['Rainfall'], b['Yield'],
+           c='r', marker='o')
+ab, ba = np.meshgrid(b['Fertilizer'],
+                     b['Rainfall'])
+exog = dd.core.frame.DataFrame({'Fertilizer':ab.ravel(),
+                                'Rainfall':ba.ravel()}
+                               )
+out = result.predict(exog=exog)
+ax.plot_surface(ab, ba, out.values.reshape(ab.shape), rstride=1, cstride=1, alpha='0.4', color='red')
+ax.set_xlabel("Fertilizer")
+ax.set_ylabel("Rainfall")
+ax.set_zlabel("Yield")
 plt.show()
